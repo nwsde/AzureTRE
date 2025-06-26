@@ -141,6 +141,16 @@ deploy-core: tre-start
 			&& ./deploy.sh 1>/dev/null 2>/dev/null; \
 		else cd ${MAKEFILE_DIR}/core/terraform/ && ./deploy.sh; fi;
 
+# Runs deploy-core but without applying the TF changes, allows the TF plan to be inspected
+show-core-plan: tre-start
+	$(call target_title, "Generating core terraform plan") \
+	&& . ${MAKEFILE_DIR}/devops/scripts/check_dependencies.sh nodocker,env \
+	&& rm -fr ~/.config/tre/environment.json \
+	&& if [[ "$${TF_LOG}" == "DEBUG" ]]; \
+		then echo "TF DEBUG set - output supressed - see tflogs container for log file" && cd ${MAKEFILE_DIR}/core/terraform/ \
+			&& ./show_plan.sh 1>/dev/null 2>/dev/null; \
+		else cd ${MAKEFILE_DIR}/core/terraform/ && ./show_plan.sh; fi;
+
 # Description: Request LetsEncrypt SSL certificate
 # Example: make letsencrypt
 letsencrypt:
